@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nzila Agro</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2d5016">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>🌾 Nzila Agro</h1>
+  <p>"O caminho que liga o agricultor ao comprador"</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('home', this)">🏠 Início</button>
+  <button onclick="showPage('products', this)">🛒 Produtos</button>
+  <button onclick="showPage('nearby', this)">📍 Perto de mim</button>
+  <button onclick="showPage('publish', this)">📝 Publicar</button>
+  <button onclick="showPage('my-products', this)" id="btn-my" style="display:none">📦 Meus</button>
+  <button onclick="showPage('auth', this)" id="btn-auth">🔐 Entrar</button>
+</nav>
+
+<div class="container">
+
+  <!-- AUTH -->
+  <div id="auth" class="page">
+    <div class="form-container">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('login', this)">Entrar</button>
+        <button class="tab" onclick="switchTab('register', this)">Criar conta</button>
+      </div>
+      
+      <form id="login-form" onsubmit="login(event)">
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="tel" id="login-phone" required placeholder="+244 923 000 000">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="login-password" required>
+        </div>
+        <button type="submit" class="btn-submit">Entrar</button>
+      </form>
+
+      <form id="register-form" class="hidden" onsubmit="register(event)">
+        <div class="form-group">
+          <label>Nome completo</label>
+          <input type="text" id="reg-name" required>
+        </div>
+        <div class="form-group">
+          <label>Telefone</label>
+          <input type="tel" id="reg-phone" required placeholder="+244 ...">
+        </div>
+        <div class="form-group">
+          <label>Localização</label>
+          <input type="text" id="reg-location" placeholder="Ex: Luanda, Viana">
+        </div>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" id="reg-password" required minlength="4">
+        </div>
+        <button type="submit" class="btn-submit">Criar conta</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="page">
+    <div class="hero">
+      <div class="hero-content">
+        <h2>Escoar a produção nunca foi tão fácil</h2>
+        <p>Conectamos agricultores diretamente a compradores</p>
+        <button onclick="showPage('publish', document.querySelector('nav button:nth-child(4)'))">Publicar meu produto</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <h2 class="section-title">🌱 Produtos recentes</h2>
+    <div class="products" id="featured"></div>
+  </div>
+
+  <!-- PRODUTOS -->
+  <div id="products" class="page hidden">
+    <h2 class="section-title">🛒 Todos os produtos</h2>
+    <div class="filters">
+      <input type="text" id="search" placeholder="🔍 Buscar..." oninput="loadProducts()">
+      <select id="filter-category" onchange="loadProducts()">
+        <option value="">Todas categorias</option>
+        <option value="Hortaliças">🥬 Hortaliças</option>
+        <option value="Frutas">🍎 Frutas</option>
+        <option value="Grãos">🌾 Grãos</option>
+        <option value="Tubérculos">🥔 Tubérculos</option>
+        <option value="Leguminosas">🫘 Leguminosas</option>
+        <option value="Outros">📦 Outros</option>
+      </select>
+    </div>
+    <div class="products" id="all-products"></div>
+  </div>
+
+  <!-- PERTO DE MIM -->
+  <div id="nearby" class="page hidden">
+    <h2 class="section-title">📍 Produtos perto de você</h2>
+    <div class="form-container" style="margin-bottom:20px">
+      <p style="margin-bottom:15px">Ative a localização para ver produtos próximos:</p>
+      <button class="btn-submit" onclick="getMyLocation()">📍 Usar minha localização</button>
+      <div id="location-status" style="margin-top:15px; text-align:center"></div>
+    </div>
+    <div class="products" id="nearby-products"></div>
+  </div>
+
+  <!-- PUBLICAR -->
+  <div id="publish" class="page hidden">
+    <h2 class="section-title">📝 Publicar produto</h2>
+    <div class="form-container">
+      <form onsubmit="publishProduct(event)">
+        <div class="form-group">
+          <label>Nome do produto *</label>
+          <input type="text" id="p-name" required>
+        </div>
+        <div class="form-group">
+          <label>Categoria *</label>
+          <select id="p-category" required>
+            <option value="">Selecione...</option>
+            <option>Hortaliças</option><option>Frutas</option>
+            <option>Grãos</option><option>Tubérculos</option>
+            <option>Leguminosas</option><option>Outros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Quantidade *</label>
+          <input type="text" id="p-quantity" required placeholder="Ex: 50 kg">
+        </div>
+        <div class="form-group">
+          <label>Preço (Kz) *</label>
+          <input type="number" id="p-price" required step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Localização *</label>
+          <input type="text" id="p-location" required>
+        </div>
+        <div class="form-group">
+          <label>📸 Foto do produto</label>
+          <input type="file" id="p-image" accept="image/*">
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="p-geo"> Compartilhar minha localização (para aparecer em "Perto de mim")
+          </label>
+          <button type="button" class="btn-secondary" onclick="captureGeo()">📍 Capturar localização</button>
+          <div id="geo-status" style="font-size:0.9em; color:#666; margin-top:5px"></div>
+          <input type="hidden" id="p-lat">
+          <input type="hidden" id="p-lng">
+        </div>
+        <div class="form-group">
+          <label>Descrição</label>
+          <textarea id="p-description"></textarea>
+        </div>
+        <button type="submit" class="btn-submit">✅ Publicar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MEUS PRODUTOS -->
+  <div id="my-products" class="page hidden">
+    <h2 class="section-title">📦 Meus produtos</h2>
+    <div class="products" id="my-products-list"></div>
+  </div>
+
+  <!-- DETALHES DO PRODUTO -->
+  <div id="product-detail" class="page hidden">
+    <button class="btn-back" onclick="history.back()">← Voltar</button>
+    <div id="detail-content"></div>
+  </div>
+
+</div>
+
+<footer>
+  <p>🌾 <strong>Nzila Agro</strong> — O caminho do agricultor</p>
+  <p style="margin-top:8px; opacity:0.8;">© 2026</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
